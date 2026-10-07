@@ -49,11 +49,12 @@ Tasks:
 2. Confirm the grain of the main fact tables.
 3. Review relationship cardinality and filter direction.
 4. Check whether required business keys exist on both sides of each relationship.
-5. Build any missing key needed to create a valid relationship.
+5. Build any genuinely missing key needed to support a valid relationship.
 6. Check for ambiguous paths, inappropriate many-to-many relationships, disconnected business tables, or incorrect active relationships.
-7. Explain one model issue you found or confirm why the existing design is valid.
+7. Record any suspicious or missing relationship you discover.
+8. **Do not repair the seeded workshop relationship defect yet** — keep it unchanged for the later Data Agent troubleshooting exercise in Q9.
 
-**Evidence:** Model-view snapshot before and after changes, plus a short explanation.
+**Evidence:** Model-view snapshot, identified anomalies, and any key-building work completed. Preserve evidence of the seeded relationship defect for Q9.
 
 ---
 
@@ -196,8 +197,10 @@ Suggested progression:
 2. Show sales by channel.
 3. What are the top five products by sales?
 4. Compare sales with the previous period.
-5. Which stores have high sales but unusually high return rates?
-6. Which promotion is associated with the strongest sales performance, and how does return rate compare?
+5. Show sales and return rate by customer or customer segment.
+6. Which customers or customer segments have high sales but unusually high return rates?
+
+At least one test must deliberately use **Customer together with Sales and/or Returns** so the seeded relationship problem can surface before Q9.
 
 For every question:
 - Review the response.
@@ -209,35 +212,32 @@ For every question:
 
 ---
 
-## Q9 — Find one inaccuracy, diagnose it, fix it, and retest
+## Q9 — Diagnose the seeded Customer relationship failure, fix it, and retest
 **Level:** Expert  
 **Marks:** 10
 
-Intentionally search for a prompt where the first answer is incorrect, ambiguous, incomplete, or uses the wrong model object.
+The UrbanCart workshop model contains an **intentional relationship defect** designed to produce an inaccurate or misleading Data Agent answer when Customer attributes are used with Sales and Returns.
 
-Diagnose the problem. Possible root causes include:
-- Bad relationship
-- Wrong grain
-- Poor naming
-- Missing description
-- Missing/incorrect measure
-- Too much schema exposed
-- Missing AI Instruction
-- Weak Verified Answer
-- Ambiguous date logic
+Start with a question such as:
 
-Fix the **model or Prep for AI configuration at the correct layer**, then ask the same question again.
+> Show Total Sales and Return Rate by Customer Segment.
 
-Document:
-1. Original prompt
-2. Incorrect response
-3. Generated-query issue
-4. Root cause
-5. Change made
-6. Retest result
-7. Why the fix is durable
+or
 
-**Evidence:** Before/after troubleshooting record.
+> Which customers have the highest sales and return rates?
+
+Tasks:
+1. Ask the question **before repairing the model** and capture the answer.
+2. Inspect the generated DAX / run steps and compare the result with Power BI.
+3. Trace the issue back to the semantic model rather than trying to solve it only with prompt wording.
+4. Identify the missing Customer filtering path to the relevant fact table(s).
+5. Restore the correct Customer relationship(s) using the appropriate key, cardinality and filter direction.
+6. Refresh/save and republish the corrected semantic model as required.
+7. Ask the **exact same question** again.
+8. Compare the before/after result and prove that Customer now filters Sales and Returns correctly.
+9. Explain why model repair is a more durable fix than adding an AI instruction to compensate for a broken relationship.
+
+**Evidence:** Broken-model screenshot, incorrect response, generated-query/run-step evidence, relationship repair, corrected model screenshot, republished/retested answer, and before/after comparison.
 
 ---
 
@@ -268,9 +268,11 @@ Tasks:
 Use the same ten tasks, but apply them to the HR semantic model and workforce terminology.
 
 ## Q1 — Validate the HR data model and relationships
-Inspect the headcount, payroll, performance, requisition and termination facts; validate their individual grains and shared dimensions such as Employee, Department, Job, Location and Date. Create any missing relationship key required for a valid star-style model.
+Inspect the headcount, payroll, performance, requisition and termination facts; validate their individual grains and shared dimensions such as Employee, Department, Job, Location and Date. Create any genuinely missing relationship key required for a valid star-style model.
 
-**Evidence:** Before/after Model-view snapshot.
+Record suspicious or missing relationships, but **do not repair the seeded Department-to-Headcount relationship defect yet**. It is intentionally preserved for the troubleshooting exercise in Q9.
+
+**Evidence:** Model-view snapshot, identified anomalies, and any key-building work completed.
 
 ## Q2 — Make the HR semantic model business friendly
 Rename technical/vague HR objects, hide housekeeping and technical keys, and add descriptions to important tables, columns and measures. Use TMDL + Copilot where helpful.
@@ -328,14 +330,35 @@ Test at least six questions, for example:
 5. Which departments have rising requisitions while headcount is declining?
 6. How did average performance rating and turnover move over time at department level?
 
+At least one test must deliberately use **Department with Headcount** so the seeded relationship problem can be observed before Q9.
+
 Validate measures, dimensions, dates, filters and generated DAX.
 
 **Evidence:** Prompt-validation matrix.
 
-## Q9 — Find one HR inaccuracy, fix the root cause, and retest
-Find a failed/weak answer and trace it to the semantic model or Prep for AI. Correct the appropriate relationship, KPI definition, metadata, AI Data Schema, instruction or Verified Answer and retest the same prompt.
+## Q9 — Diagnose the seeded Department-to-Headcount failure, fix it, and retest
+The HR workshop model contains an **intentional relationship defect** affecting Department-level Headcount analysis.
 
-**Evidence:** Before/after troubleshooting record.
+Start with a question such as:
+
+> Show last month's Headcount by Department.
+
+or
+
+> Which departments have the highest Headcount?
+
+Tasks:
+1. Ask the question **before repairing the model** and capture the answer.
+2. Inspect the generated DAX / run steps and validate the numbers in Power BI.
+3. Determine whether the problem is in the prompt, measure logic, AI configuration, or model relationship.
+4. Trace the issue to the missing Department filtering path into the Headcount fact.
+5. Restore the Department-to-Headcount relationship with the correct key, cardinality and filter direction.
+6. Refresh/save and republish the model as required.
+7. Ask the **exact same question** again.
+8. Compare the before/after results and prove Department now filters Headcount correctly.
+9. Explain why fixing the semantic model is preferable to masking the problem with Data Agent instructions.
+
+**Evidence:** Broken-model screenshot, incorrect response, generated-query/run-step evidence, relationship repair, corrected model screenshot, and before/after answer validation.
 
 ## Q10 — Enable Code Interpreter and perform visual workforce analysis
 Example prompt:
@@ -407,3 +430,14 @@ For Code Interpreter:
 - Semantic-model-specific instructions should not be placed only at the Data Agent level; the semantic-model DAX generation path relies on the semantic model metadata and Prep for AI configuration.
 - Data Agent-level instructions are best used for agent-wide routing, clarification, response behavior, common terminology across sources, formatting and tool-use guidance.
 - Code Interpreter is an advanced tool for Python-based analysis and visualizations over data retrieved by the Data Agent. Participants should inspect its generated code and validate its inputs/outputs.
+
+---
+
+# Facilitator Seeded Defects
+
+These defects are intentionally present in the workshop PBIX files so participants can experience a realistic Data Agent accuracy failure and repair cycle.
+
+- **UrbanCart:** Customer filtering relationships to **Fact Sales** and **Fact Return** are intentionally removed. The expected failure should surface when Customer attributes are combined with Sales and/or Return metrics.
+- **HR:** The **Department → Headcount** relationship is intentionally removed. The expected failure should surface when Headcount is grouped or filtered by Department.
+
+Do not repair these seeded defects during the initial model-review exercise. Preserve them until Q9, where participants must demonstrate **wrong answer → diagnosis → model fix → republish/retest → corrected answer**.
