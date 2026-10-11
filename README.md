@@ -3,5 +3,7 @@
 #### 2. Use any LLM like ChatGPT, Co-Pilot, Claude etc of your choice for bulk operations like semantic model enrichments.
 #### 3. If facing issue while connecting to source then please download dataset zip and just change your power bi paramters source.
 
+#### Open Assessment.md and start your hands-on for Data Agent. 
+
 Thanks & Regards,
 Happy Sunday
